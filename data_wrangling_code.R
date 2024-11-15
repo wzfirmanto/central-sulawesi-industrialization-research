@@ -409,3 +409,70 @@ print(merged_df)
 CSGor20102024 <- merged_df
 
 
+## Copy merged data to edit
+
+mydata <- merged_df
+
+
+## Change province code to binary
+
+library(dplyr)
+
+mydata$province <- ifelse(mydata$prov_code == 72, 1, 0)
+
+## Change working_lastweek variable to binary
+
+mydata$working_lastweek <- ifelse(mydata$working_lastweek == 1, 1, 0)
+
+## Change school participation to binary
+
+
+unique_years <- unique(mydata$year[mydata$school_participation == 4])
+
+print(unique_years)
+
+mydata$school_participation <- ifelse(
+  mydata$year %in% c(2011, 2012, 2013, 2014, 2015) & mydata$school_participation == 3, 
+  2, 
+  ifelse(
+    mydata$year %in% c(2011, 2012, 2013, 2014, 2015) & mydata$school_participation == 4, 
+    3, 
+    mydata$school_participation
+  )
+)
+
+mydata$school_participation <- ifelse(mydata$school_participation == 2, 1, 0)
+
+
+## Create post variable based on year
+
+mydata$post <- ifelse(mydata$year > 2014, 1, 0)
+
+
+## create province*post variable
+
+
+mydata$treatment <- mydata$province * mydata$post
+
+
+## Create formal_emp variable based on workstatus & KBJI2014 
+
+mydata$formal_emp <- ifelse(
+  (mydata$workstatus == 1 & mydata$KBJI2014 %in% c(1, 2, 3)) |
+    (mydata$workstatus == 2 & mydata$KBJI2014 %in% c(1, 2, 3, 4, 5, 7, 8, 9)) |
+    (mydata$workstatus %in% c(3, 4)) |
+    (mydata$workstatus == 5 & !mydata$KBJI2014 %in% c(5, 6, 7, 8, 9)) |
+    (mydata$workstatus == 6 & !mydata$KBJI2014 %in% c(5, 6, 7, 8, 9)),
+  1, # Formal
+  ifelse(
+    (mydata$workstatus == 1 & mydata$KBJI2014 %in% c(5, 6, 7, 8, 9)) |
+      (mydata$workstatus == 2 & mydata$KBJI2014 == 6) |
+      (mydata$workstatus %in% c(5, 6) & mydata$KBJI2014 %in% c(5, 6, 7, 8, 9)) |
+      (mydata$workstatus == 7),
+    0, # Informal
+    NA # Default for invalid/missing combinations (optional)
+  )
+)
+
+
+
