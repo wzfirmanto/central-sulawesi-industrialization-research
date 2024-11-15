@@ -136,7 +136,7 @@ kbji_mapping <- list(
 # Function to create the new KBJI2014 variable
 convert_kbji2014 <- function(df) {
   # Ensure KBJI2014 column is initialized
-  df$KBJI2014 <- sapply(df$business_cat90, function(x) {
+  df$KBJI2014 <- sapply(df$occupation, function(x) {
     x <- as.character(x)
     if (x %in% names(kbji_mapping)) {
       # For values with proportional splits, apply sampling based on proportions
